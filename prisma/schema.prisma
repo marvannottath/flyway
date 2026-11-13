@@ -1,0 +1,160 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  name             String?
+  companyName      String?
+  country          String?   @default("CA") // CA, US, AE, GB, DE, etc.
+  role             String    @default("USER") // USER | SUPERADMIN
+  stripeCustomerId String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  wallet           Wallet?
+  deals            CrmDeal[]
+  employees        HrEmployee[]
+  automations      WorkflowAutomation[]
+  auditLogs        AdminAuditLog[]
+
+  @@index([email])
+}
+
+model Wallet {
+  id                     String        @id @default(cuid())
+  userId                 String        @unique
+  user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance                Int           @default(500) // Initial trial credits
+  currency               String        @default("CAD") // CAD | USD
+  lifetimeSpentCents     Int           @default(0)
+  lifetimeCreditsGranted Int           @default(500)
+  autoTopUpEnabled       Boolean       @default(false)
+  autoTopUpThreshold     Int           @default(100)
+  autoTopUpTierAmount    Int           @default(250) // $250 CAD default
+  updatedAt              DateTime      @updatedAt
+  createdAt              DateTime      @default(now())
+
+  transactions           Transaction[]
+  usageLogs              UsageLog[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id                    String   @id @default(cuid())
+  walletId              String
+  wallet                Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type                  String   // TOPUP | MANUAL_ADJUSTMENT | USAGE_BURN | REFUND
+  status                String   @default("PENDING") // PENDING | SUCCEEDED | FAILED | CANCELED
+  amountCents           Int      @default(0) // 0 if admin manual adjustment
+  currency              String   @default("CAD")
+  creditsChange         Int      // positive for top-up, negative for deduction
+  balanceAfter          Int
+  stripePaymentIntentId String?  @unique
+  stripeChargeId        String?
+  orderRef              String   @unique
+  idempotencyKey        String?  @unique
+  description           String?
+  metadataJson          String?  // JSON string
+  createdAt             DateTime @default(now())
+
+  @@index([walletId])
+  @@index([stripePaymentIntentId])
+  @@index([orderRef])
+}
+
+model UsageLog {
+  id              String   @id @default(cuid())
+  walletId        String
+  wallet          Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  serviceName     String   // e.g. "Document Intelligence OCR", "AI High-Concurrency Workflow", etc.
+  serviceCategory String   @default("WORKFLOW_ENGINE") // WORKFLOW_ENGINE | CRM | HR | ADMIN
+  creditsCost     Int
+  balanceAfter    Int
+  executionTimeMs Int      @default(240)
+  status          String   @default("SUCCESS") // SUCCESS | FAILED
+  payloadSnippet  String?
+  createdAt       DateTime @default(now())
+
+  @@index([walletId])
+  @@index([createdAt])
+}
+
+// CRM Module: Enterprise Client Deals & Pipeline
+model CrmDeal {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientName      String
+  companyName     String
+  contactEmail    String
+  dealValueCAD    Int      // Deal value in CAD
+  stage           String   @default("LEAD") // LEAD | QUALIFIED | PROPOSAL | NEGOTIATION | CLOSED_WON
+  probability     Int      @default(50) // Percentage 0-100
+  aiRiskScore     String   @default("LOW") // LOW | MEDIUM | HIGH
+  notes           String?
+  lastContactedAt DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// HR Module: Team, Employees, Candidate Screening & Payroll
+model HrEmployee {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String
+  workEmail       String
+  department      String   // Engineering | Sales | AI Research | Operations | Finance
+  jobTitle        String
+  employmentType  String   @default("FULL_TIME") // FULL_TIME | CONTRACT | REMOTE
+  salaryCAD       Int      // Annual salary in CAD
+  status          String   @default("ACTIVE") // ACTIVE | ONBOARDING | ON_LEAVE
+  performanceScore Float   @default(4.8) // 1.0 to 5.0
+  hireDate        DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Automated Workflow Engine: Multi-Step Business Automation
+model WorkflowAutomation {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  category        String   // CRM | HR | ADMINISTRATION | BILLING
+  triggerEvent    String   // e.g. "On New Lead" | "On Resume Submission" | "Monthly Payroll Audit"
+  actionPlan      String   // What the AI workflow executes
+  creditCost      Int      @default(25) // Credits consumed per automated trigger
+  status          String   @default("ACTIVE") // ACTIVE | PAUSED
+  runCount        Int      @default(0)
+  lastRunAt       DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Enterprise Administration: Governance, Corporate Audit & Compliance
+model AdminAuditLog {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType       String   // COMPLIANCE_CHECK | ROLE_CHANGE | CONTRACT_SIGNING | TAX_AUDIT
+  severity        String   @default("INFO") // INFO | WARNING | CRITICAL
+  description     String
+  ipAddress       String   @default("127.0.0.1")
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
