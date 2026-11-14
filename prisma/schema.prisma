@@ -23,6 +23,8 @@ model User {
   employees        HrEmployee[]
   automations      WorkflowAutomation[]
   auditLogs        AdminAuditLog[]
+  apiKeys          ApiKey[]
+  teamMembers      TeamMember[]
 
   @@index([email])
 }
@@ -73,9 +75,9 @@ model Transaction {
 model UsageLog {
   id              String   @id @default(cuid())
   walletId        String
-  wallet                Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet          Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
   serviceName     String   // e.g. "Document Intelligence OCR", "AI High-Concurrency Workflow", etc.
-  serviceCategory String   @default("WORKFLOW_ENGINE") // WORKFLOW_ENGINE | CRM | HR | ADMIN
+  serviceCategory String   @default("WORKFLOW_ENGINE") // WORKFLOW_ENGINE | CRM | HR | ADMIN | PUBLIC_API
   creditsCost     Int
   balanceAfter    Int
   executionTimeMs Int      @default(240)
@@ -85,6 +87,36 @@ model UsageLog {
 
   @@index([walletId])
   @@index([createdAt])
+}
+
+// Developer API Key Model for External Client Integration
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String    // e.g. "Production Cluster API Key", "Zapier Webhook Key"
+  keyPrefix   String    // e.g. "fly_live_8aF"
+  keyHash     String    @unique // Full secure token
+  lastUsedAt  DateTime?
+  status      String    @default("ACTIVE") // ACTIVE | REVOKED
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+// Team Member & Role-Based Access Control (RBAC)
+model TeamMember {
+  id          String    @id @default(cuid())
+  userId      String    // Tenant Owner ID
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email       String
+  name        String?
+  role        String    @default("DEVELOPER") // ADMIN | DEVELOPER | FINANCE | VIEWER
+  status      String    @default("ACTIVE") // ACTIVE | INVITED
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
 }
 
 // CRM Module: Enterprise Client Deals & Pipeline
