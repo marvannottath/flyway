@@ -1,6 +1,36 @@
 import { prisma } from "@/lib/prisma";
 
 export async function ensureEnterpriseDataForUser(userId: string) {
+  // Ensure User and Wallet record exist
+  let user = await prisma.user.findUnique({ where: { id: userId }, include: { wallet: true } });
+  if (!user) {
+    try {
+      user = await prisma.user.create({
+        data: {
+          id: userId,
+          email: userId === "usr_client_ca_02" ? "sarah.miller@scaleops.ca" : `${userId}@enterprise.com`,
+          name: userId === "usr_client_ca_02" ? "Sarah Miller" : "Enterprise Administrator",
+          companyName: userId === "usr_client_ca_02" ? "ScaleOps Technologies Inc (Toronto, Canada)" : "Enterprise Client Org",
+          country: "CA",
+          role: "USER",
+          stripeCustomerId: `cus_${userId}`,
+          wallet: {
+            create: {
+              balance: 8500,
+              currency: "CAD",
+              lifetimeSpentCents: 50000,
+              lifetimeCreditsGranted: 60000,
+            },
+          },
+        },
+        include: { wallet: true },
+      });
+    } catch (e) {
+      // User may have been created concurrently
+      user = await prisma.user.findUnique({ where: { id: userId }, include: { wallet: true } });
+    }
+  }
+
   // Check CRM deals
   const dealCount = await prisma.crmDeal.count({ where: { userId } });
   if (dealCount === 0) {
