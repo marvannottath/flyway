@@ -4,7 +4,7 @@ import { generateStripeId } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderRef, paymentIntentId } = await req.json();
+    const { orderRef, paymentIntentId, methodUsed } = await req.json();
 
     if (!orderRef && !paymentIntentId) {
       return NextResponse.json({ error: "Missing orderRef or paymentIntentId" }, { status: 400 });
@@ -52,15 +52,16 @@ export async function POST(req: NextRequest) {
       });
 
       // Add a usage log entry for ledger transparency
+      const providerLabel = methodUsed === "WHOP_MOR" ? "Whop Merchant of Record" : methodUsed === "INTERAC_EFT" ? "Interac Canadian Direct EFT" : methodUsed === "APPLE_PAY" ? "Apple Pay 1-Tap Enclave" : "Stripe Pre-Authorized MIT";
       await tx.usageLog.create({
         data: {
           walletId: transaction.walletId,
-          serviceName: `Stripe Wallet Credit: ${transaction.description}`,
+          serviceName: `${providerLabel}: ${transaction.description}`,
           serviceCategory: "TOP_UP",
           creditsCost: 0,
           balanceAfter: newBalance,
           executionTimeMs: 95,
-          payloadSnippet: `Settled via Stripe Charge [${chargeId}] / Intent [${transaction.stripePaymentIntentId}] for $${(transaction.amountCents / 100).toFixed(2)} ${transaction.currency}`,
+          payloadSnippet: `Settled via ${providerLabel} [${chargeId}] / Ref [${transaction.orderRef}] for $${(transaction.amountCents / 100).toFixed(2)} ${transaction.currency}`,
         },
       });
 

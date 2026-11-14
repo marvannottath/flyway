@@ -20,6 +20,8 @@ import {
   Smartphone,
   Landmark,
   Timer,
+  ShoppingBag,
+  ExternalLink,
 } from "lucide-react";
 import { CREDIT_TIERS, calculateCustomCredits } from "@/lib/pricing";
 
@@ -43,7 +45,7 @@ export default function TopUpModal({
   const [customAmount, setCustomAmount] = useState<number>(2500);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"SELECT_TIER" | "PAYMENT" | "SUCCESS">("SELECT_TIER");
-  const [paymentMethod, setPaymentMethod] = useState<"CARD" | "APPLE_PAY" | "QR_CODE" | "INTERAC">("CARD");
+  const [paymentMethod, setPaymentMethod] = useState<"CARD" | "APPLE_PAY" | "WHOP" | "QR_CODE" | "INTERAC">("CARD");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState(false);
   const [qrScanned, setQrScanned] = useState(false);
@@ -365,33 +367,37 @@ export default function TopUpModal({
               </div>
 
               {/* PAYMENT METHOD TABS */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {[
-                  { id: "CARD", label: "Credit Card", icon: CreditCard, badge: "Instant" },
+                  { id: "CARD", label: "Credit Card", icon: CreditCard, badge: "Direct MIT" },
                   { id: "APPLE_PAY", label: "Apple / G-Pay", icon: Smartphone, badge: "1-Tap" },
+                  { id: "WHOP", label: "Whop MoR", icon: ShoppingBag, badge: "Global" },
                   { id: "QR_CODE", label: "Scan QR", icon: QrCode, badge: "Mobile" },
                   { id: "INTERAC", label: "Interac / EFT", icon: Landmark, badge: "Canada" },
                 ].map((m) => {
                   const Icon = m.icon;
                   const isSelected = paymentMethod === m.id;
+                  const isWhop = m.id === "WHOP";
                   return (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => setPaymentMethod(m.id as any)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
                         isSelected
-                          ? "border-brand-cyan bg-brand-cyan/10 shadow-md shadow-brand-cyan/10"
+                          ? isWhop
+                            ? "border-orange-500 bg-orange-500/10 shadow-md shadow-orange-500/10"
+                            : "border-brand-cyan bg-brand-cyan/10 shadow-md shadow-brand-cyan/10"
                           : "border-border bg-[#121520] hover:bg-[#161a28] text-zinc-400"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <Icon className={`h-4 w-4 ${isSelected ? "text-brand-cyan" : "text-zinc-400"}`} />
-                        <span className="text-[9px] font-mono px-1 rounded bg-white/10 text-zinc-300 font-bold">
+                        <Icon className={`h-4 w-4 ${isSelected ? (isWhop ? "text-orange-400" : "text-brand-cyan") : "text-zinc-400"}`} />
+                        <span className={`text-[8px] font-mono px-1 rounded font-bold ${isWhop && isSelected ? "bg-orange-500/20 text-orange-300" : "bg-white/10 text-zinc-300"}`}>
                           {m.badge}
                         </span>
                       </div>
-                      <div className={`text-xs font-bold ${isSelected ? "text-white" : "text-zinc-300"}`}>
+                      <div className={`text-[11px] font-bold ${isSelected ? "text-white" : "text-zinc-300"}`}>
                         {m.label}
                       </div>
                     </button>
@@ -505,6 +511,78 @@ export default function TopUpModal({
                       </>
                     )}
                   </button>
+                </div>
+              )}
+
+              {/* METHOD 3: WHOP CHECKOUT (MERCHANT OF RECORD) */}
+              {paymentMethod === "WHOP" && (
+                <div className="space-y-4 rounded-xl border border-orange-500/30 bg-[#120e0a] p-5 animate-fadeIn">
+                  <div className="flex items-center justify-between border-b border-orange-500/20 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FF6243] text-black font-extrabold text-sm shadow-md">
+                        W
+                      </div>
+                      <div>
+                        <span className="font-bold text-white text-sm">Whop Global MoR Checkout</span>
+                        <p className="text-[10px] text-orange-400/80">Storefront: Flyway-cloud (biz_1ivkqqjLJPReo8)</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                      Merchant of Record
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-zinc-300 bg-[#090B10] p-3 rounded-lg border border-border">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Selected Plan:</span>
+                      <span className="text-white font-bold">{paymentDetails.tierName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Settlement Amount:</span>
+                      <span className="text-white font-bold">
+                        ${(paymentDetails.amountCents / 100).toLocaleString()} {paymentDetails.currency.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Credits Granted:</span>
+                      <span className="text-emerald-400 font-bold">+{paymentDetails.creditsToAdd.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Taxes & MoR Compliance:</span>
+                      <span className="text-zinc-400">Handled by Whop Inc. (US/Global)</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                    <a
+                      href="https://whop.com/checkout/biz_1ivkqqjLJPReo8"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-xs text-white bg-[#1a1715] hover:bg-[#25201c] border border-orange-500/30 flex items-center justify-center gap-2 transition-all shadow-sm"
+                    >
+                      <ExternalLink className="h-4 w-4 text-orange-400" />
+                      Open Whop Storefront
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmPayment("WHOP_MOR")}
+                      disabled={isProcessingPayment}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#FF6243] to-[#FF8008] hover:opacity-95 shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                    >
+                      {isProcessingPayment ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 animate-spin text-white" />
+                          Authorizing via Whop...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 text-white" />
+                          Complete via Whop (${(paymentDetails.amountCents / 100).toLocaleString()})
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -690,7 +768,9 @@ export default function TopUpModal({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400">Payment Channel:</span>
-                  <span className="text-zinc-200 font-bold uppercase">{paymentMethod.replace("_", " ")}</span>
+                  <span className="text-zinc-200 font-bold uppercase">
+                    {paymentMethod === "WHOP" ? "WHOP (MERCHANT OF RECORD)" : paymentMethod.replace("_", " ")}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400">Statement Descriptor:</span>
