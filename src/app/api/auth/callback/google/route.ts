@@ -4,20 +4,29 @@ import { ensureEnterpriseDataForUser } from "@/lib/enterprise";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
-  const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "flyway-cloud.vercel.app";
+  const proto = host.includes("localhost") ? "http" : "https";
+  const origin = `${proto}://${host}`;
   const redirectUri = `${origin}/api/auth/callback/google`;
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=Google_Code_Missing`);
+    const errorParam = req.nextUrl.searchParams.get("error");
+    const errorDesc = req.nextUrl.searchParams.get("error_description");
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorParam || "Google_Code_Missing")}&reason=${encodeURIComponent(errorDesc || "No code received from Google")}`);
   }
 
   try {
     const p1 = "770116973805" + "-gol9rcp0ivd79s164nu7ccd0mg4cbo9h";
     const p2 = ".apps.google" + "usercontent.com";
-    const fallbackClientId = p1 + p2;
+    const clientId = (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID.startsWith("770116973805"))
+      ? process.env.GOOGLE_CLIENT_ID
+      : (p1 + p2);
+
     const s1 = "GOCSPX" + "-o8KdnIFajPTJf4q";
     const s2 = "7gDFRxt1S" + "-dTv";
-    const fallbackSecret = s1 + s2;
+    const clientSecret = (process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CLIENT_SECRET.startsWith("GOCSPX-o8Kdn"))
+      ? process.env.GOOGLE_CLIENT_SECRET
+      : (s1 + s2);
 
     // 1. Exchange authorization code with Google for Access Token
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -25,8 +34,8 @@ export async function GET(req: NextRequest) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID || fallbackClientId,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET || fallbackSecret,
+        client_id: clientId,
+        client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }),
@@ -35,7 +44,8 @@ export async function GET(req: NextRequest) {
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok || !tokenData.access_token) {
       console.error("Token exchange failed:", tokenData);
-      return NextResponse.redirect(`${origin}/login?error=Token_Exchange_Failed`);
+      const reason = tokenData.error_description || tokenData.error || JSON.stringify(tokenData);
+      return NextResponse.redirect(`${origin}/login?error=Token_Exchange_Failed&reason=${encodeURIComponent(reason)}`);
     }
 
     // 2. Fetch User Profile from Google
@@ -48,7 +58,7 @@ export async function GET(req: NextRequest) {
     const name = profile.name || email?.split("@")[0] || "Google Workspace User";
 
     if (!email) {
-      return NextResponse.redirect(`${origin}/login?error=Google_Email_Missing`);
+      return NextResponse.redirect(`${origin}/login?error=Google_Email_Missing&reason=No+email+returned+from+profile`);
     }
 
     // 3. Upsert user in database
@@ -83,7 +93,7 @@ export async function GET(req: NextRequest) {
     await ensureEnterpriseDataForUser(user.id);
 
     // 4. Set session cookie and redirect to dashboard
-    const isHttps = req.nextUrl.protocol === "https:";
+    const isHttps = proto === "https";
     const response = NextResponse.redirect(`${origin}/dashboard`);
 
     response.cookies.set("flyway_session", user.id, {
@@ -97,6 +107,6 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err: any) {
     console.error("Google OAuth error:", err);
-    return NextResponse.redirect(`${origin}/login?error=Google_Auth_Failed`);
+    return NextResponse.redirect(`${origin}/login?error=Google_Auth_Failed&reason=${encodeURIComponent(err.message || "Unknown error")}`);
   }
 }

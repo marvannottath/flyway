@@ -11,13 +11,16 @@ function LoginForm() {
   const redirectTarget = searchParams.get("redirect") || "/dashboard";
   const planParam = searchParams.get("plan");
   const errorQuery = searchParams.get("error");
+  const reasonQuery = searchParams.get("reason");
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(
-    errorQuery ? `Authentication error: ${errorQuery}` : null
+    errorQuery
+      ? `Authentication error: ${errorQuery}${reasonQuery ? ` (${reasonQuery})` : ""}`
+      : null
   );
 
   // Email Sign-in handler
