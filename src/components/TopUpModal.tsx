@@ -331,7 +331,7 @@ export default function TopUpModal({
                 {loading ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin text-black" />
-                    Initializing Underwriting Intent...
+                    Initializing Secure Checkout...
                   </>
                 ) : (
                   <>

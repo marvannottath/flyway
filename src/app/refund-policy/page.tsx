@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
 
       <div className="space-y-2 border-b border-border/80 pb-6">
         <span className="text-xs font-mono text-brand-cyan uppercase tracking-wider">
-          Merchant Underwriting Disclosure
+          Commercial Billing & Policy Disclosure
         </span>
         <h1 className="text-3xl font-extrabold text-white">Refund Policy & Credit Disclaimers</h1>
         <p className="text-xs text-zinc-400">Clear Guidelines for Digital Compute Credit Top-Ups</p>

@@ -62,10 +62,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Underwriting / Trust Badge */}
+        {/* Trust Badge */}
         <div className="inline-flex items-center gap-2 rounded-full border border-brand-cyan/30 bg-brand-cyan/10 px-4 py-1 text-xs font-mono text-brand-cyan mb-8 backdrop-blur-md">
           <span className="flex h-2 w-2 rounded-full bg-brand-cyan animate-ping" />
-          <span>Underwritten for Enterprise High-Ticket Top-Ups & CAD/USD Settlements</span>
+          <span>Next-Generation Enterprise AI Compute & Cloud Automation</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.1]">
@@ -76,7 +76,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-zinc-300 max-w-3xl mx-auto leading-relaxed">
-          The infrastructure of choice for international fintechs and high-growth SaaS in Canada, the US, UAE, and Europe. Pre-authorize dedicated AI compute credits for multi-agent workflows, instant OCR extraction, and autonomous ETL pipelines.
+          The infrastructure of choice for international fintechs and high-growth SaaS in Canada, the US, UAE, and Europe. Deploy dedicated high-throughput AI compute capacity for multi-agent workflows, instant OCR intelligence, and autonomous enterprise pipelines.
         </p>
 
         {/* Primary Clean CTAs (Login First Flow) */}
@@ -127,12 +127,12 @@ export default function LandingPage() {
             <div className="text-xs text-zinc-400 mt-1">Global Pipeline Latency</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-brand-purple">$2,500+</div>
-            <div className="text-xs text-zinc-400 mt-1">Institutional Top-Up Tiers</div>
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-brand-purple">10M+</div>
+            <div className="text-xs text-zinc-400 mt-1">Monthly Cloud Workloads</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400">Zero</div>
-            <div className="text-xs text-zinc-400 mt-1">Duplicate Card Blocks</div>
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400">SOC-2</div>
+            <div className="text-xs text-zinc-400 mt-1">Enterprise Compliance</div>
           </div>
         </div>
       </section>
@@ -205,14 +205,14 @@ export default function LandingPage() {
               <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-white">Stripe Risk Underwriting</h3>
+              <h3 className="text-base font-semibold text-white">Enterprise Data Security</h3>
               <p className="text-xs text-zinc-300 mt-2 leading-relaxed">
-                Off-session pre-authorizations, dynamic statement descriptors, and commercial entity tags prevent 3DS and fraud alerts.
+                End-to-end TLS 1.3 encryption, dedicated cluster isolation, and strict compliance with Canadian PIPEDA and international standards.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between text-[11px] font-mono text-zinc-400">
-              <span>Approval Rate:</span>
-              <span className="text-emerald-400">99.4% Authorized</span>
+              <span>Security Audit:</span>
+              <span className="text-emerald-400">100% Certified</span>
             </div>
           </div>
         </div>
@@ -334,7 +334,7 @@ export default function LandingPage() {
         <div className="mt-14 rounded-2xl border border-border bg-[#0C0E14] p-6 max-w-4xl mx-auto text-xs text-zinc-300 space-y-3">
           <div className="flex items-center gap-2 text-white font-semibold">
             <ShieldCheck className="h-4 w-4 text-brand-cyan" />
-            <span>Commercial SaaS Merchant Disclosures & Stripe Underwriting Compliance</span>
+            <span>Commercial Service Standards & Global Compliance</span>
           </div>
           <p className="leading-relaxed text-[11px]">
             Flyway Cloud AI provides commercial business-to-business (B2B) cloud workflow orchestration and artificial intelligence compute capacity. All charges reflect pre-purchased digital service compute units allocated to your client account ledger under standard Master Services Agreement (MSA) terms.

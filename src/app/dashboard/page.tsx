@@ -1227,7 +1227,7 @@ export default function DashboardPage() {
                     Sovereign Governance, Tax Compliance & Audit Ledger
                   </h3>
                   <p className="text-xs text-zinc-400">
-                    Compliant under Canadian PIPEDA, UAE ADGM/DIFC, and Stripe Pre-Authorized Underwriting Standards
+                    Compliant under Canadian PIPEDA, UAE ADGM/DIFC, and SOC-2 Security Standards
                   </p>
                 </div>
 

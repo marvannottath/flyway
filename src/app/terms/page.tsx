@@ -32,7 +32,7 @@ export default function TermsPage() {
 
         <section className="space-y-2">
           <h2 className="text-sm font-bold text-white uppercase tracking-wide">
-            2. Commercial Underwriting & High-Ticket Transactions
+            2. Commercial Billing & Pre-Authorized Compute Allocations
           </h2>
           <p>
             Transactions exceeding $250 CAD or equivalent in USD represent pre-authorized commercial allocations intended for business-to-business (B2B) use. By providing credit card details through our tokenized Stripe Elements processor, Client authorizes Flyway to pre-authorize off-session charges for recurring auto-topup allocations when compute balances drop below designated minimum thresholds.

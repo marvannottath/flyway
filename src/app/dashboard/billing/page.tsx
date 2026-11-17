@@ -151,7 +151,7 @@ export default function BillingPage() {
           </div>
           <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
             <ShieldCheck className="h-4 w-4" />
-            <span>Off-Session Verified (Zero Fraud Hold)</span>
+            <span>Verified Active Corporate Card</span>
           </div>
         </div>
       </div>

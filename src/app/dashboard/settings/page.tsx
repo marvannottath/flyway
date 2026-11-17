@@ -280,7 +280,7 @@ function SettingsContent() {
                   </span>
                 </div>
                 <p className="text-xs text-zinc-400 mt-2 max-w-xl">
-                  Canadian settlement via Stripe Pre-Authorized Commercial SaaS Underwriting. Zero-OTP automatic off-session execution.
+                  High-availability Canadian cloud compute allocation with automated real-time wallet settlement.
                 </p>
               </div>
 
