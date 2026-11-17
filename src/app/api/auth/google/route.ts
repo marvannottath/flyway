@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const p1 = "84334033340" + "-ji45khbd9c2n07h1gepag65gr8qac1cq";
+  const p1 = "770116973805" + "-gol9rcp0ivd79s164nu7ccd0mg4cbo9h";
   const p2 = ".apps.google" + "usercontent.com";
   const clientId = process.env.GOOGLE_CLIENT_ID || (p1 + p2);
   const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || "https://flyway-cloud.vercel.app";
