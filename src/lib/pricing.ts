@@ -14,6 +14,22 @@ export interface CreditTier {
 
 export const CREDIT_TIERS: CreditTier[] = [
   {
+    id: "micro_test_5",
+    name: "Developer Micro-Test",
+    tagline: "Live card tokenization & instant compute test",
+    priceCAD: 5,
+    priceUSD: 4,
+    credits: 500,
+    bonusCredits: 0,
+    unitCostCAD: 0.01,
+    features: [
+      "500 Live Compute Credits",
+      "Instant Card Setup & Vaulting (MIT off-session)",
+      "Automated Balance Top-Up Rail Verification",
+      "Zero Setup Fees & Instant Activation",
+    ],
+  },
+  {
     id: "starter_250",
     name: "Starter Fleet",
     tagline: "Essential compute for growing AI production pipelines",

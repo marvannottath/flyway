@@ -300,7 +300,7 @@ export default function TopUpModal({
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-400 mt-0.5">
-                      Tailored multi-agent clusters ($250 to $10,000+ {currency})
+                      Tailored multi-agent clusters ($5 to $10,000+ {currency})
                     </p>
                   </div>
 
@@ -309,8 +309,8 @@ export default function TopUpModal({
                       <span className="text-xs text-zinc-400 font-mono">$</span>
                       <input
                         type="number"
-                        min="250"
-                        step="100"
+                        min="5"
+                        step="5"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(Number(e.target.value))}
                         className="w-28 rounded-lg border border-border bg-[#090B10] px-3 py-1.5 text-xs font-mono text-white focus:border-brand-cyan focus:outline-none"

@@ -28,10 +28,10 @@ export async function POST(req: NextRequest) {
     let tierName = "Custom Top-Up";
 
     if (tierId === "custom") {
-      const amountVal = Number(customAmount) || 2500;
-      if (amountVal < 250) {
+      const amountVal = Number(customAmount) || 5;
+      if (amountVal < 5) {
         return NextResponse.json(
-          { error: "Minimum top-up tier is $250 to ensure compliance with enterprise compute allocations." },
+          { error: "Minimum top-up tier is $5 CAD." },
           { status: 400 }
         );
       }
