@@ -660,7 +660,7 @@ export default function TopUpModal({
                   <div className="space-y-2 text-zinc-300 bg-[#090B10] p-3 rounded-lg border border-border">
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Recipient Email:</span>
-                      <span className="text-brand-cyan font-bold">settlement@flywaycloud.ai</span>
+                      <span className="text-brand-cyan font-bold">flywaycloud@gmail.com</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Message / Memo:</span>

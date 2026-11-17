@@ -30,7 +30,7 @@ export default function ContactPage() {
             For invoicing, high-ticket wire authorizations, and merchant documentation:
           </p>
           <div className="pt-2 font-mono text-xs text-brand-cyan font-bold">
-            billing@flywaycloud.ai
+            flywaycloud@gmail.com
           </div>
         </div>
 

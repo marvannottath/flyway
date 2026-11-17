@@ -44,7 +44,7 @@ export default function RefundPolicyPage() {
             3. Chargeback Avoidance & Pre-Dispute Resolution
           </h2>
           <p>
-            If you do not recognize a charge with the statement descriptor <code className="text-white font-mono bg-white/10 px-1 py-0.5 rounded">FLYWAY*COMPUTE</code> or believe a billing discrepancy occurred, please contact our 24/7 dedicated finance desk at <strong className="text-brand-cyan">billing@flywaycloud.ai</strong> before initiating a bank dispute. Legitimate duplicate charges resulting from gateway connection retries will be voided within 24 business hours.
+            If you do not recognize a charge with the statement descriptor <code className="text-white font-mono bg-white/10 px-1 py-0.5 rounded">FLYWAY*COMPUTE</code> or believe a billing discrepancy occurred, please contact our 24/7 dedicated finance desk at <strong className="text-brand-cyan">flywaycloud@gmail.com</strong> before initiating a bank dispute. Legitimate duplicate charges resulting from gateway connection retries will be voided within 24 business hours.
           </p>
         </section>
       </div>

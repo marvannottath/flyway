@@ -342,7 +342,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-[10px] text-zinc-400 border-t border-border/60">
             <div><strong>Billing Descriptor:</strong> FLYWAY*COMPUTE</div>
             <div><strong>Fulfillment:</strong> Real-Time Ledger Credit</div>
-            <div><strong>Customer Support:</strong> billing@flywaycloud.ai</div>
+            <div><strong>Customer Support:</strong> flywaycloud@gmail.com</div>
           </div>
         </div>
       </section>
