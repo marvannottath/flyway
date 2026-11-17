@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
           currency: currency.toLowerCase(),
           description: `Flyway Cloud: ${tierName} (${creditsToAdd.toLocaleString()} Compute Credits)`,
           statement_descriptor_suffix: "FLYWAY AI",
-          receipt_email: user.email,
+          // Disabled receipt_email: Silent ledger settlement (invoices viewable inside /dashboard/billing)
           setup_future_usage: "off_session", // High-ticket recurring commercial SaaS standard
           metadata,
           automatic_payment_methods: {
