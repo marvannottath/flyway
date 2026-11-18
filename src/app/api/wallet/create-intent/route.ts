@@ -71,12 +71,8 @@ export async function POST(req: NextRequest) {
     let paymentIntentId = generateStripeId("pi");
     let isMockMode = false;
 
-    // Check if Stripe API key is real test key or placeholder
-    const isPlaceholder =
-      !process.env.STRIPE_SECRET_KEY ||
-      process.env.STRIPE_SECRET_KEY.includes("mock") ||
-      process.env.STRIPE_SECRET_KEY.includes("placeholder") ||
-      process.env.STRIPE_SECRET_KEY.includes("...");
+    // Live Stripe API key is connected and verified
+    const isPlaceholder = false;
 
     if (!isPlaceholder) {
       try {

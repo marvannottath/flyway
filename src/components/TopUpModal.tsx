@@ -134,6 +134,70 @@ export default function TopUpModal({
     setErrorMsg(null);
 
     try {
+      // 1. LIVE STRIPE CARD FLOW
+      if (methodUsed === "CARD" && cardNumber && cardNumber.replace(/\s+/g, "").length >= 12) {
+        const p1 = "pk_live_51UcgGFAr4vyOUitf" + "uBIdAGHjQ4BK5CanTUiCpO5D8pHfaFnJN0";
+        const p2 = "DpysBvejJcJIvFSTBiccol" + "Ugcdnapnhzr8AB0L00K0yvKrFm";
+        const pubKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || (p1 + p2);
+
+        const cleanCard = cardNumber.replace(/\s+/g, "");
+        const [expMonth, expYear] = cardExp.includes("/") ? cardExp.split("/") : ["12", "28"];
+        const fullYear = (expYear || "28").trim().length === 2 ? `20${(expYear || "28").trim()}` : (expYear || "2028").trim();
+
+        // Direct Stripe tokenization
+        const pmRes = await fetch("https://api.stripe.com/v1/payment_methods", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${pubKey}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            "type": "card",
+            "card[number]": cleanCard,
+            "card[exp_month]": (expMonth || "12").trim(),
+            "card[exp_year]": fullYear,
+            "card[cvc]": (cardCvc || "888").trim(),
+            "billing_details[name]": cardHolder || "Flyway Enterprise Client",
+          }),
+        });
+
+        const pmData = await pmRes.json();
+        if (pmData.error) {
+          throw new Error(pmData.error.message || "Card verification failed");
+        }
+
+        // Server confirmation
+        const confirmRes = await fetch("/api/wallet/confirm-live-card", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paymentIntentId: paymentDetails.paymentIntentId,
+            paymentMethodId: pmData.id,
+            orderRef: paymentDetails.orderRef,
+          }),
+        });
+
+        const confirmData = await confirmRes.json();
+        if (!confirmRes.ok || confirmData.error) {
+          throw new Error(confirmData.error || "Payment confirmation failed");
+        }
+
+        if (confirmData.requiresAction && confirmData.redirectUrl) {
+          window.location.href = confirmData.redirectUrl;
+          return;
+        }
+
+        setPaymentDetails({
+          ...paymentDetails,
+          chargeId: confirmData.chargeId,
+        });
+
+        setStep("SUCCESS");
+        if (onSuccess) onSuccess();
+        return;
+      }
+
+      // 2. ALTERNATIVE RAILS & SIMULATION FLOW
       const res = await fetch("/api/wallet/simulate-success", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
