@@ -68,6 +68,32 @@ export default function TopUpModal({
   const [cardExp, setCardExp] = useState("12/28");
   const [cardCvc, setCardCvc] = useState("888");
   const [cardHolder, setCardHolder] = useState("Authorized Corporate Officer");
+  const [isRedirectingCheckout, setIsRedirectingCheckout] = useState(false);
+
+  const handleStripeCheckout = async () => {
+    setIsRedirectingCheckout(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch("/api/wallet/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: selectedTierId,
+          currency,
+          customAmount: isCustom ? customAmount : undefined,
+          userId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Failed to start checkout");
+      }
+      window.location.href = data.url;
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to launch Stripe checkout");
+      setIsRedirectingCheckout(false);
+    }
+  };
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
@@ -163,6 +189,9 @@ export default function TopUpModal({
 
         const pmData = await pmRes.json();
         if (pmData.error) {
+          if (pmData.error.message?.includes("unsupported for publishable key tokenization") || pmData.error.message?.includes("settings/integration")) {
+            throw new Error("Direct card input requires enabling 'Process payments without Elements' in dashboard.stripe.com/settings/integration. Alternatively, click the purple 'Pay with Official Stripe Checkout' button above!");
+          }
           throw new Error(pmData.error.message || "Card verification failed");
         }
 
@@ -428,6 +457,35 @@ export default function TopUpModal({
                     ${(paymentDetails.amountCents / 100).toLocaleString()} {paymentDetails.currency.toUpperCase()}
                   </span>
                 </div>
+              </div>
+
+              {/* 1-CLICK OFFICIAL STRIPE HOSTED CHECKOUT BUTTON */}
+              <button
+                type="button"
+                onClick={handleStripeCheckout}
+                disabled={isRedirectingCheckout}
+                className="w-full py-3.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#635BFF] via-[#7A73FF] to-[#0A2540] hover:opacity-95 shadow-xl shadow-[#635BFF]/25 flex items-center justify-center gap-2.5 transition-all group border border-white/20"
+              >
+                {isRedirectingCheckout ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin text-white" />
+                    Connecting to Official Stripe Secure Checkout...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 text-white" />
+                    <span>Pay with Official Stripe Checkout (1-Click Apple Pay, G-Pay & Cards)</span>
+                    <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </>
+                )}
+              </button>
+
+              <div className="relative flex items-center justify-center">
+                <div className="border-t border-border/80 w-full" />
+                <span className="bg-[#0E1017] px-3 text-[10px] text-zinc-400 uppercase tracking-wider font-mono">
+                  Or select direct in-modal rail below
+                </span>
+                <div className="border-t border-border/80 w-full" />
               </div>
 
               {/* PAYMENT METHOD TABS */}
